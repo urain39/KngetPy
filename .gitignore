@@ -102,3 +102,13 @@ venv.bak/
 
 # mypy
 .mypy_cache/
+
+# KngetPy
+*.jpg
+*.png
+kn-*/
+
+# KngetPy Screenshots
+!pics/screenshot1.png
+!pics/screenshot2.png
+!pics/screenshot3.png

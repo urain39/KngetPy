@@ -1,6 +1,0 @@
-{
-    // 在我的环境上莫名其妙的RuntimeError
-    // 暂时只好关掉这个插件了，如果你的设备
-    // 支持，那么请手动反注释掉下面或改为true
-    "python.linting.pylintEnabled": false
-}
