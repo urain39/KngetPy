@@ -183,7 +183,7 @@ class Knget():
                 'Referer': self._custom.get('base_url') + '/post/'
         }
         self._task_pool = dict()
-
+        self._meta_infos = list()
 
     def _load_faker(self):
         load_time_fake = [
@@ -267,6 +267,8 @@ class Knget():
         cur_jobs_count = 0
         cur_retry_count = 0
 
+        self._meta_infos.extend(task_pool)
+
         for job in task_pool:
             file_size = job.get('file_size')
 
@@ -314,12 +316,12 @@ class Knget():
             self._task_pool = response.json()
 
             if len(self._task_pool) < 1:
-                self._msg2('Cannot find anything in content of the posts!')
-                self._msg2('Possible current page is the last page of the tag?')
-                self._cleanup()
-                sys.exit(_NO_ERROR)
-
-            self.work(self._task_pool)
+                break
+            elif len(self._task_pool) < self._custom.get('page_limit'):
+                self.work(self._task_pool)
+                break
+            else:
+                self.work(self._task_pool)
         self._cleanup()
 
 
