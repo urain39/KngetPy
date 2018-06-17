@@ -9,8 +9,6 @@ import time
 import copy
 import random
 import requests
-from hashlib import sha1
-
 
 _NO_ERROR = 0
 _CONFIG_ERROR = 1
@@ -238,26 +236,52 @@ class Knget():
         response = self._session.get(
             url=self._check_url(url),
             stream=True,
-            timeout=self._config.get('timeout')
+            timeout=self._config.get('timeout') or 10
         )
 
         self._load_faker()
         if not os.path.exists(file_name) or os.path.getsize(file_name) != file_size:
             with open(file_name, 'wb') as fp:
-                bufsize = self._config.get('bufsize')
+                bufsize = self._config.get('bufsize') or (1<<20)
 
                 for data in response.iter_content(chunk_size=bufsize):
                     fp.write(data)
 
     def _cleanup(self):
-        with open('metadata.json', 'w') as fp:
-            json.dump(self._task_pool, fp)
+        with open('meta_data.json', 'w') as fp:
+            json.dump(self._meta_infos, fp)
 
         os.chdir(self._curdir)
         for _dir in os.listdir(self._curdir):
             if os.path.isdir(_dir) and len(os.listdir(_dir)) < 1:
                 os.rmdir(_dir)
                 self._msg2('save_dir {0} is empty, removed.'.format(_dir))
+
+    def _filter(self):
+        post_rating = self._custom.get('post_rating')
+        post_min_score = self._custom.get('post_min_score')
+        post_tags_blacklist = self._custom.get('post_tags_blacklist')
+
+        if post_rating != r'' and post_rating != None:
+            self._task_pool = [
+                task
+                for task in self._task_pool
+                    if task.get('rating') in post_rating.split()
+            ]
+
+        if post_min_score != r'' and post_min_score != None:
+            self._task_pool = [
+                task
+                for task in self._task_pool
+                    if (task.get('score') or task.get('total_score' or 0)) >= post_min_score
+            ]
+
+        if post_tags_blacklist != r'' and post_tags_blacklist != None:
+            self._task_pool = [
+                task
+                for task in self._task_pool
+                    if all(tag not in post_tags_blacklist.split() for tag in task['tags'].split())
+            ]
 
     def work(self, task_pool):
         jobs_count = len(task_pool)
@@ -315,6 +339,7 @@ class Knget():
 
             self._task_pool = response.json()
 
+            self._filter()
             if len(self._task_pool) < 1:
                 break
             elif len(self._task_pool) < self._custom.get('page_limit'):
