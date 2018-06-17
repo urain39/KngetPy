@@ -280,20 +280,22 @@ class Knget():
             self._task_pool = [
                 task
                 for task in self._task_pool
-                    if all(tag not in post_tags_blacklist.split() for tag in task['tags'].split())
+                    if all([tag not in post_tags_blacklist.split() for tag in task['tags'].split()])
             ]
 
-    def work(self, task_pool):
-        jobs_count = len(task_pool)
+    def work(self):
+        self._filter()
+
+        jobs_count = len(self._task_pool)
         retry_count = self._config.get('retry_count')
         retry_wait = self._config.get('retry_wait')
 
         cur_jobs_count = 0
         cur_retry_count = 0
 
-        self._meta_infos.extend(task_pool)
+        self._meta_infos.extend(self._task_pool)
 
-        for job in task_pool:
+        for job in self._task_pool:
             file_size = job.get('file_size')
 
             if (file_size or 0) < self._config.get('maxsize') * (1<<20):
@@ -339,14 +341,13 @@ class Knget():
 
             self._task_pool = response.json()
 
-            self._filter()
             if len(self._task_pool) < 1:
                 break
             elif len(self._task_pool) < self._custom.get('page_limit'):
-                self.work(self._task_pool)
+                self.work()
                 break
             else:
-                self.work(self._task_pool)
+                self.work()
         self._cleanup()
 
 
