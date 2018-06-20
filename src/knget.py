@@ -249,7 +249,8 @@ class Knget():
 
     def _cleanup(self):
         with open('meta_data.json', 'w') as fp:
-            json.dump(self._meta_infos, fp)
+            if not len(self._meta_infos) < 1:
+                json.dump(self._meta_infos, fp)
 
         os.chdir(self._curdir)
         for _dir in os.listdir(self._curdir):
