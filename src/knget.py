@@ -248,8 +248,8 @@ class Knget():
                     fp.write(data)
 
     def _cleanup(self):
-        with open('meta_data.json', 'w') as fp:
-            if not len(self._meta_infos) < 1:
+        if not len(self._meta_infos) < 1:
+            with open('meta_data.json', 'w') as fp:
                 json.dump(self._meta_infos, fp)
 
         os.chdir(self._curdir)
