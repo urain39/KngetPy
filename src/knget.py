@@ -166,8 +166,8 @@ class Knget():
             self._task_pool = [
                 task
                 for task in self._task_pool
-                    if (task.get('score') or
-                        task.get('total_score' or 0)) >= post_min_score
+                    if int(task.get('score') or
+                        task.get('total_score') or 0) >= post_min_score
             ]
 
         if post_tags_blacklist != r'' and post_tags_blacklist != None:
