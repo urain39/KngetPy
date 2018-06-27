@@ -35,7 +35,7 @@ _CONFIG_TIPS = '''\
 ;
 '''.format(sys.argv[0])
 
-_DEFAUL_CONFIG = {
+_DEFAULT_CONFIG = {
     'custom': {
         'base_url': 'https://konachan.net',
         'page_limit': 10,
@@ -51,7 +51,7 @@ _DEFAUL_CONFIG = {
     }
 }
 
-class KngetError():
+class KngetError(Exception):
     '''KngetPy BaseException.
     '''
     pass
@@ -275,7 +275,7 @@ def main(argv):
     else:
         with open('config.ini', 'w') as fp:
             config = IniFile()
-            config.reset(_DEFAUL_CONFIG)
+            config.reset(_DEFAULT_CONFIG)
             fp.write(_CONFIG_TIPS + '\n')
             config.dump(fp)
 
