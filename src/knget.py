@@ -256,6 +256,58 @@ class Knget():
         self._cleanup()
 
 
+class KngetShell(Knget):
+    def help(self):
+        sys.stdout.write(
+            'Copyright (c) 2017-2018 urain39\n'
+            '    KngetPy & Knget Project\n'
+            '\n'
+            'run <tag1> [<tag2>...] <begin> <end>\n'
+            'help show this message again\n'
+            'exit exit session\n'
+            'dir  show list of the current directory\n'
+        )
+
+    def _eval(self, line, cmd, args):
+            if cmd in ('run', 'task'):
+                try:
+                    if len(args) < 3:
+                        self._msg2('#%d: args error!' % line)
+                    else:
+                        self.run(' '.join(args[0:-2]), int(args[-2]), int(args[-1]))
+                except ValueError as e:
+                    self._msg2(e)
+                    self.help()
+            elif cmd in ('dir', 'ls'):
+                for _file in os.listdir(os.getcwd()):
+                    sys.stdout.write(_file + '\n')
+            elif cmd in ('exit', 'quit'):
+                sys.exit(_NO_ERROR)
+            elif cmd in ('help',):
+                self.help()
+            else:
+                self._msg2('#%d: cannot found command %s' % (line, cmd))
+                self.help()
+
+    def session(self):
+        line = 0
+
+        while True:
+            sys.stderr.write('KGSH> ')
+
+            _line = sys.stdin.readline()
+            line += 1
+
+            if len(_line) < 1:
+                break # EOF
+            _line = _line.split()
+
+            if len(_line) < 1:
+                continue # Blank
+
+            self._eval(line, cmd=_line[0], args=_line[1:])
+
+
 def usage(status=None):
     print(_USAGE)
 
@@ -279,14 +331,12 @@ def main(argv):
             fp.write(_CONFIG_TIPS + '\n')
             config.dump(fp)
 
-    knget = Knget(config)
-
     if len(argv) < 3:
-        return usage(_USAGE_ERROR)
+        KngetShell(config).session()
     elif len(argv) == 3:
-        knget.run(argv[1], 1 ,int(argv[2]))
+        Knget(config).run(argv[1], 1 ,int(argv[2]))
     elif len(argv) == 4:
-        knget.run(argv[1], int(argv[2]), int(argv[3]))
+        Knget(config).run(argv[1], int(argv[2]), int(argv[3]))
     else:
         return usage(_USAGE_ERROR)
 
