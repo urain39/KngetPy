@@ -59,7 +59,6 @@ class KngetError(Exception):
 
 class Knget():
     def __init__(self, config):
-        self._tags = []
         self._curdir = os.getcwd()
         self._custom = config.get_section('custom')
         self._config = config.get_section('download')
@@ -226,7 +225,6 @@ class Knget():
 
     def run(self, tags, begin, end):
         self._chdir(tags)
-        self._tags = tags
 
         for page in range(begin, end + 1):
             self._load_faker()
@@ -304,7 +302,6 @@ class KngetShell(Knget):
 
             if len(_line) < 1:
                 continue # Blank
-
             self._eval(line, cmd=_line[0], args=_line[1:])
 
 
