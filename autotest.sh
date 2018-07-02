@@ -2,15 +2,19 @@
 
 cd ./src
 
-# Python2
-python2 knget.py 'loli' 1
-python2 knget.py 'loli' 1 2
-python2 knget.py 'loli game_cg' 1 3
+# Normal
+python knget.py 'loli' 1
+python knget.py 'loli' 2 3
+python knget.py 'loli game_cg' 4 6
 
-# Python3
-python3 knget.py 'loli' 1
-python3 knget.py 'loli' 1 2
-python3 knget.py 'loli game_cg' 1 3
+# Without config.ini
+rm config.ini
+python knget.py 'loli game_cg' 9 9
+
+# Change the base_url
+sed -i 's|^;\(base_url.*\)|\1|g' config.ini
+python knget.py 'loli game_cg' 10 11
 
 # Cleanup
 rm -rf kn-*
+cd ../
