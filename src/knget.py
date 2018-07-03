@@ -317,15 +317,22 @@ def usage(status=None):
         sys.exit(status)
 
 def main(argv):
-    if os.path.exists('config.ini'):
+    config_path = 'config.ini'
+
+    if os.name == 'posix':
+        config_path = os.getenv('HOME') + '/knget.ini'
+    elif os.name == 'nt':
+        config_path = os.getenv('HOMEPATH') + '/knget.ini'
+
+    if os.path.exists(config_path):
         try:
-            config = IniFile('config.ini')
+            config = IniFile(config_path)
         except IniException as e:
             print('{0}\n'.format(e))
             print('Possible cannot read?')
             sys.exit(_CONFIG_ERROR)
     else:
-        with open('config.ini', 'w') as fp:
+        with open(config_path, 'w') as fp:
             config = IniFile()
             config.reset(_DEFAULT_CONFIG)
             fp.write(_CONFIG_TIPS + '\n')
