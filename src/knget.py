@@ -40,7 +40,10 @@ _DEFAULT_CONFIG = {
         'base_url': 'https://konachan.net',
         'page_limit': 10,
         'user_agent': 'Mozilla/5.0(Macintosh;U;IntelMacOSX10_6_8;en-us)AppleWebKit/534.50(KHTML,likeGecko)Version/5.1Safari/534.50',
-        'load_time_fake': '0-1'
+        'load_time_fake': '0-1',
+        'post_rating': 'e q s',
+        'post_min_score': 100,
+        'post_tags_blacklist': 'video mp4 webm'
     },
     'download': {
         'timeout': 10,

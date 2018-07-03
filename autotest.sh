@@ -1,20 +1,25 @@
 #!/usr/bin/env sh
 
-cd ./src
+HERE=$PWD
+cd $HERE/src
 
-# Normal
-python knget.py 'loli' 1
-python knget.py 'loli' 2 3
-python knget.py 'loli game_cg' 4 6
+echo "=== Normal test ==="
+python knget.py 'loli' 1 && \
+python knget.py 'loli' 2 3 && \
+python knget.py 'loli game_cg' 4 6 || exit $?
 
-# Without config.ini
-rm config.ini
-python knget.py 'loli game_cg' 9 9
+echo "== Change the base_url =="
+sed -i 's|^;\(base_url.*\)|\1|g' config.ini && \
+python knget.py 'loli game_cg' 10 11 || exit $?
 
-# Change the base_url
-sed -i 's|^;\(base_url.*\)|\1|g' config.ini
-python knget.py 'loli game_cg' 10 11
+echo "== Without config.ini =="
+rm config.ini && \
+python knget.py 'loli game_cg' 9 9 || exit $?
+
+echo "====== KngetShell ======"
+(echo "task seifuku sunflower 1 3" | python knget.py) || exit $?
 
 # Cleanup
 rm -rf kn-*
-cd ../
+cd $HERE
+exit 0
