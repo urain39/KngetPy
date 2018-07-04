@@ -112,3 +112,9 @@ class IniFile():
         section = section or self._section
 
         self._section = section
+
+    def get_dict(self):
+        return self._props
+
+    def update(self, ini):
+        return self._props.update(ini.get_dict())
