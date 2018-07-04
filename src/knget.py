@@ -260,17 +260,16 @@ class Knget():
 class KngetShell(Knget):
     def help(self):
         sys.stdout.write(
-            'Copyright (c) 2017-2018 urain39\n'
-            '    KngetPy & Knget Project\n'
+            'Copyright (c) 2017-2018 KngetPy Project\n'
             '\n'
-            'run <tag1> [<tag2>...] <begin> <end>\n'
-            'help show this message again\n'
-            'exit exit session\n'
-            'dir  show list of the current directory\n'
+            'exit, q       exit session\n'
+            'help, h       show this message again\n'
+            'run, task, r  <tag1> [<tag2>...] <begin> <end>\n'
+            'dir, list, d  show list of the current directory\n'
         )
 
     def _eval(self, line, cmd, args):
-            if cmd in ('run', 'task'):
+            if cmd in ('run', 'task', 'r'):
                 try:
                     if len(args) < 3:
                         self._msg2('#%d: args error!' % line)
@@ -279,12 +278,12 @@ class KngetShell(Knget):
                 except ValueError as e:
                     self._msg2(e)
                     self.help()
-            elif cmd in ('dir', 'ls'):
+            elif cmd in ('dir', 'ls', 'd'):
                 for _file in os.listdir(os.getcwd()):
                     sys.stdout.write(_file + '\n')
-            elif cmd in ('exit', 'quit'):
+            elif cmd in ('exit', 'quit', 'q'):
                 sys.exit(_NO_ERROR)
-            elif cmd in ('help',):
+            elif cmd in ('help', 'h'):
                 self.help()
             else:
                 self._msg2('#%d: cannot found command %s' % (line, cmd))
