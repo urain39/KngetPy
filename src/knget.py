@@ -317,26 +317,41 @@ class KngetShell(Knget):
 
     def session(self):
         lineno = 0
-        # XXX: When i try to using
-        #        prompt(_PROMPT_STR,
-        #               history=FileHistory('history.txt'))
-        #        on Python2 that i got a problem, it say
-        #        TypeError: prompt() got an unexpected keyword argument 'history'
-        #
-        # See also:
-        # https://github.com/jonathanslenders/python-prompt-toolkit/blob/master/examples/prompts/history/slow-history.py
-        # https://github.com/jonathanslenders/python-prompt-toolkit/blob/master/examples/prompts/history/persistent-history.py
-        _session = PromptSession(message=_PROMPT_STR,
-                          history=FileHistory('history.txt'))
 
-        while True:
-            line = _session.prompt()
-            line = shlex.split(line)
-            lineno += 1
+        if not sys.stdin.isatty():
+            # Get stdin from a pipe.
+            while True:
+                line = sys.stdin.read()
+                lineno += 1
 
-            if len(line) < 1:
-                continue # Blank
-            self._eval(lineno, cmd=line[0], args=line[1:])
+                if len(line) < 1:
+                    break # EOF
+                line = shlex.split(line)
+
+                if len(line) < 1:
+                    continue # Blank
+                self._eval(lineno, cmd=line[0], args=line[1:])
+        else:
+            # Get stdin from a tty-like devices.
+            # XXX: When i try to using
+            #        prompt(_PROMPT_STR,
+            #               history=FileHistory('history.txt'))
+            #        on Python2 that i got a problem, it say
+            #        TypeError: prompt() got an unexpected keyword argument 'history'
+            #
+            # See also:
+            # https://github.com/jonathanslenders/python-prompt-toolkit/blob/master/examples/prompts/history/slow-history.py
+            # https://github.com/jonathanslenders/python-prompt-toolkit/blob/master/examples/prompts/history/persistent-history.py
+            _session = PromptSession(message=_PROMPT_STR,
+                                     history=FileHistory('history.txt'))
+            while True:
+                line = _session.prompt()
+                line = shlex.split(line)
+                lineno += 1
+
+                if len(line) < 1:
+                    continue # Blank
+                self._eval(lineno, cmd=line[0], args=line[1:])
 
 
 def usage(status=None):
