@@ -4,13 +4,22 @@
 import os
 import re
 import sys
-import json
 import time
 import copy
 import random
+import json
+import shlex
 import requests
 from inifile import IniFile
 from inifile import IniException
+from prompt_toolkit import PromptSession
+from prompt_toolkit.history import FileHistory
+
+__all__ = [
+    'main',
+    'Knget',
+    'KngetShell'
+]
 
 _NO_ERROR = 0
 _CONFIG_ERROR = 1
@@ -21,6 +30,9 @@ _DOWNLOAD_ERROR = 4
 _USAGE = '''\
 Usage: {0} <tags> <[begin]<end>>
 '''.format(sys.argv[0])
+
+# Ensure _PROMPT_STR is unicode
+_PROMPT_STR = u'KGSH> '
 
 _CONFIG_TIPS = '''\
 ; KngetPy Project.
@@ -54,6 +66,7 @@ _DEFAULT_CONFIG = {
     }
 }
 
+
 class KngetError(Exception):
     '''KngetPy BaseException.
     '''
@@ -61,6 +74,8 @@ class KngetError(Exception):
 
 
 class Knget():
+    '''KngetPy Base Class.
+    '''
     def __init__(self, config):
         self._curdir = os.getcwd()
         self._custom = config.get_section('custom')
@@ -174,7 +189,7 @@ class Knget():
 
         if post_tags_blacklist != r'' and post_tags_blacklist != None:
             if 'sankaku' in self._custom.get('base_url'):
-                # XXX: Handle sankaku's site's tags
+                # XXX: Handle sankaku site's tags
                 self._task_pool = [
                     task
                     for task in self._task_pool
@@ -239,14 +254,21 @@ class Knget():
                     'limit': self._custom.get('page_limit')
             }
 
-            response = self._session.get(
-                self._custom.get('base_url') + '/post/index.json',
-                timeout=self._config.get('timeout'),
-                params=payload
-            )
+            # Get index data.
+            try:
+                response = self._session.get(
+                    self._custom.get('base_url') + '/post/index.json',
+                    timeout=self._config.get('timeout'),
+                    params=payload )
 
-            self._task_pool = response.json()
+                self._task_pool = response.json()
+            except (requests.exceptions.RequestException, ValueError) as e:
+                self._msg2('Error: {0}'.format(e))
+                self._msg2('Quitting...')
+                self._cleanup()
+                break
 
+            # Do the job from index data.
             if len(self._task_pool) < 1:
                 break
             elif len(self._task_pool) < self._custom.get('page_limit'):
@@ -258,7 +280,11 @@ class Knget():
 
 
 class KngetShell(Knget):
+    '''KngetPy Extended Class for REPL.
+    '''
     def help(self):
+        # FIXME: May it not display on Windows
+        #      but in fact i have no time to test it.
         sys.stdout.write(
             'Copyright (c) 2017-2018 KngetPy Project\n'
             '\n'
@@ -268,11 +294,11 @@ class KngetShell(Knget):
             'dir, list, d  show list of the current directory\n'
         )
 
-    def _eval(self, line, cmd, args):
+    def _eval(self, lineno, cmd, args):
             if cmd in ('run', 'task', 'r'):
                 try:
                     if len(args) < 3:
-                        self._msg2('#%d: args error!' % line)
+                        self._msg2('#%d: args error!' % lineno)
                     else:
                         self.run(' '.join(args[0:-2]), int(args[-2]), int(args[-1]))
                 except ValueError as e:
@@ -286,25 +312,31 @@ class KngetShell(Knget):
             elif cmd in ('help', 'h'):
                 self.help()
             else:
-                self._msg2('#%d: cannot found command %s' % (line, cmd))
+                self._msg2('#%d: cannot found command %s' % (lineno, cmd))
                 self.help()
 
     def session(self):
-        line = 0
+        lineno = 0
+        # XXX: When i try to using
+        #        prompt(_PROMPT_STR,
+        #               history=FileHistory('history.txt'))
+        #        on Python2 that i got a problem, it say
+        #        TypeError: prompt() got an unexpected keyword argument 'history'
+        #
+        # See also:
+        # https://github.com/jonathanslenders/python-prompt-toolkit/blob/master/examples/prompts/history/slow-history.py
+        # https://github.com/jonathanslenders/python-prompt-toolkit/blob/master/examples/prompts/history/persistent-history.py
+        _session = PromptSession(message=_PROMPT_STR,
+                          history=FileHistory('history.txt'))
 
         while True:
-            sys.stderr.write('KGSH> ')
+            line = _session.prompt()
+            line = shlex.split(line)
+            lineno += 1
 
-            _line = sys.stdin.readline()
-            line += 1
-
-            if len(_line) < 1:
-                break # EOF
-            _line = _line.split()
-
-            if len(_line) < 1:
+            if len(line) < 1:
                 continue # Blank
-            self._eval(line, cmd=_line[0], args=_line[1:])
+            self._eval(lineno, cmd=line[0], args=line[1:])
 
 
 def usage(status=None):
@@ -328,7 +360,7 @@ def main(argv):
             config = IniFile(config_path)
         except IniException as e:
             print('{0}\n'.format(e))
-            print('Possible cannot read?')
+            print('Possible config syntax error?')
             sys.exit(_CONFIG_ERROR)
     else:
         with open(config_path, 'w') as fp:
