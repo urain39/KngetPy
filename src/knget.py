@@ -282,39 +282,56 @@ class Knget():
 class KngetShell(Knget):
     '''KngetPy Extended Class for REPL.
     '''
+
+    def run(self, tags, begin, end):
+        ''' Override method of Class Knget
+        '''
+        return super(type(self),self).run(tags, int(begin), int(end))
+
+    def __init__(self, config):
+        self._commands = {}
+        super(type(self), self).__init__(config)
+
+        self.cmd_register('ls', os.listdir, 1)
+        self.cmd_register('cd', os.chdir, 1)
+        self.cmd_register('rm', os.remove, 1)
+        self.cmd_register('run', self.run, 3)
+
+    def cmd_register(self, cmd_name, callback, args_count=0, help_msg=None):
+        ''' cmd_register: register a implemented method or function as a command
+            :param: cmd_name, command name
+            :param: callback, a implemented method or function
+            :param: args_count, args count without self
+            :param: help_msg, a short message of help for this command 
+        '''
+        # Pack
+        self._commands[cmd_name] = (callback, args_count, help_msg or cmd_name)
+
     def help(self):
         # FIXME: May it not display on Windows
         #      but in fact i have no time to test it.
-        sys.stdout.write(
-            'Copyright (c) 2017-2018 KngetPy Project\n'
-            '\n'
-            'exit, q       exit session\n'
-            'help, h       show this message again\n'
-            'run, task, r  <tag1> [<tag2>...] <begin> <end>\n'
-            'dir, list, d  show list of the current directory\n'
-        )
+        print('Copyright (c) 2017-2018 urain39@cyfan.cf\n')
+        print('Registered commands:')
+        for cmd_name in self._commands.keys():
+            print(' ' * 4 + cmd_name)
 
-    def _eval(self, lineno, cmd, args):
-            if cmd in ('run', 'task', 'r'):
-                try:
-                    if len(args) < 3:
-                        self._msg2('#%d: args error!' % lineno)
-                    else:
-                        self.run(' '.join(args[0:-2]), int(args[-2]), int(args[-1]))
-                except ValueError as e:
-                    self._msg2(e)
-                    self.help()
-            elif cmd in ('dir', 'ls', 'd'):
-                for _file in os.listdir(os.getcwd()):
-                    sys.stdout.write(_file + '\n')
-            elif cmd in ('exit', 'quit', 'q'):
-                sys.exit(_NO_ERROR)
-            elif cmd in ('help', 'h'):
-                self.help()
-            else:
-                self._msg2('#%d: cannot found command %s' % (lineno, cmd))
-                self.help()
+    def execute(self, lineno, cmd_name, args):
+        if not cmd_name in self._commands.keys():
+            return self.help()
+        else:
+            # Unpack
+            callback, args_count, help_msg = self._commands[cmd_name]
 
+            # Check args count
+            if len(args) != args_count:
+                return self.help()
+
+            # Matched!
+            try:
+                callback(*args)
+            except ValueError:
+                return sys.stderr.write(help_msg)
+ 
     def session(self):
         lineno = 0
 
@@ -330,9 +347,10 @@ class KngetShell(Knget):
 
                 if len(line) < 1:
                     continue # Blank
-                self._eval(lineno, cmd=line[0], args=line[1:])
+                self.execute(lineno, cmd_name=line[0], args=line[1:])
         else:
             # Get stdin from a tty-like devices.
+
             # XXX: When i try to using
             #        prompt(_PROMPT_STR,
             #               history=FileHistory('history.txt'))
@@ -351,7 +369,7 @@ class KngetShell(Knget):
 
                 if len(line) < 1:
                     continue # Blank
-                self._eval(lineno, cmd=line[0], args=line[1:])
+                self.execute(lineno, cmd_name=line[0], args=line[1:])
 
 
 def usage(status=None):
@@ -396,5 +414,5 @@ def main(argv):
 if __name__ == '__main__':
     try:
         main(sys.argv)
-    except KeyboardInterrupt:
+    except (KeyboardInterrupt, EOFError):
         sys.exit(_NO_ERROR)
