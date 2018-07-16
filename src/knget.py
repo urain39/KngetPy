@@ -293,7 +293,8 @@ class KngetShell(Knget):
         self.cmd_register('rm', self.remove, 1, 'rm <file_path>')
         self.cmd_register('run', self.run, 3, 'run <tags> <[begin]<end>>')
         self.cmd_register('rmdir', self.rmdir, 1, 'rmdir <dir_path>')
-        self.cmd_register('exit', self.exit, 0)
+        self.cmd_register('reload', self.reload, 0, 'reload config')
+        self.cmd_register('exit', self.exit, 0, 'exit this session')
 
     def run(self, tags, begin, end):
         ''' Override method of Class Knget
@@ -316,6 +317,10 @@ class KngetShell(Knget):
     def rmdir(self, dir_path):
         if os.path.isdir(dir_path):
             os.rmdir(dir_path)
+
+    def reload(self, config=None):
+        config = config or load_config()
+        self.__init__(config)
 
     def exit(self):
         self._cleanup()
@@ -385,7 +390,7 @@ class KngetShell(Knget):
             # https://github.com/jonathanslenders/python-prompt-toolkit/blob/master/examples/prompts/history/slow-history.py
             # https://github.com/jonathanslenders/python-prompt-toolkit/blob/master/examples/prompts/history/persistent-history.py
             _session = PromptSession(message=_PROMPT_STR,
-                                     history=FileHistory('history.txt'))
+                                     history=FileHistory(os.getcwd() + 'history.txt'))
             while True:
                 line = _session.prompt()
                 line = shlex.split(line)
@@ -404,7 +409,7 @@ def usage(status=None):
     else:
         sys.exit(status)
 
-def main(argv):
+def load_config():
     config_path = 'config.ini'
 
     if os.name == 'posix':
@@ -425,6 +430,11 @@ def main(argv):
             config.reset(_DEFAULT_CONFIG)
             fp.write(_CONFIG_TIPS + '\n')
             config.dump(fp)
+
+    return config
+
+def main(argv):
+    config = load_config()
 
     if len(argv) < 3:
         KngetShell(config).session()
