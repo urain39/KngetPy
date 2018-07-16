@@ -123,7 +123,7 @@ class Knget():
         protocol = re.match(r'((?:ht|f)tps?:).*', url)
 
         if protocol is None:
-            # 从base_url获取协议头
+            # Get protocol from base_url
             base_url = self._custom.get('base_url')
             return re.match(r'((?:ht|f)tps?:).*', base_url).group(1) + url
 
@@ -134,7 +134,7 @@ class Knget():
         file_size = job['file_size']
         file_name = '{post_id}.{file_ext}'.format(
             post_id=job['id'],
-            # 使用较保守的方法获取扩展名
+            # XXX: Some sites not have file_ext!
             file_ext=job['file_url'].split('.')[-1]
         )
 
@@ -283,19 +283,43 @@ class KngetShell(Knget):
     '''KngetPy Extended Class for REPL.
     '''
 
+    def __init__(self, config):
+        self._commands = {}
+        super(type(self), self).__init__(config)
+
+        # cmd_name, implement, args_count, help_msg
+        self.cmd_register('ls', self.listdir, 1, 'ls <dir_path>')
+        self.cmd_register('cd', self.chdir, 1, 'cd <dir_path>')
+        self.cmd_register('rm', self.remove, 1, 'rm <file_path>')
+        self.cmd_register('run', self.run, 3, 'run <tags> <[begin]<end>>')
+        self.cmd_register('rmdir', self.rmdir, 1, 'rmdir <dir_path>')
+        self.cmd_register('exit', self.exit, 0)
+
     def run(self, tags, begin, end):
         ''' Override method of Class Knget
         '''
         return super(type(self),self).run(tags, int(begin), int(end))
 
-    def __init__(self, config):
-        self._commands = {}
-        super(type(self), self).__init__(config)
+    def listdir(self, dir_path):
+        if os.path.isdir(dir_path):
+            for _dir in os.listdir(dir_path):
+                print(_dir)
 
-        self.cmd_register('ls', os.listdir, 1)
-        self.cmd_register('cd', os.chdir, 1)
-        self.cmd_register('rm', os.remove, 1)
-        self.cmd_register('run', self.run, 3)
+    def chdir(self, dir_path):
+        if os.path.isdir(dir_path):
+            os.chdir(dir_path)
+
+    def remove(self, file_path):
+        if os.path.isfile(file_path):
+            os.remove(file_path)
+
+    def rmdir(self, dir_path):
+        if os.path.isdir(dir_path):
+            os.rmdir(dir_path)
+
+    def exit(self):
+        self._cleanup()
+        sys.exit(_NO_ERROR)
 
     def cmd_register(self, cmd_name, callback, args_count=0, help_msg=None):
         ''' cmd_register: register a implemented method or function as a command
@@ -305,15 +329,15 @@ class KngetShell(Knget):
             :param: help_msg, a short message of help for this command 
         '''
         # Pack
-        self._commands[cmd_name] = (callback, args_count, help_msg or cmd_name)
+        self._commands[cmd_name] = (callback, args_count, help_msg or '')
 
     def help(self):
-        # FIXME: May it not display on Windows
-        #      but in fact i have no time to test it.
         print('Copyright (c) 2017-2018 urain39@cyfan.cf\n')
         print('Registered commands:')
-        for cmd_name in self._commands.keys():
-            print(' ' * 4 + cmd_name)
+
+        for cmd_name, cmd_itself in self._commands.items():
+            _, _, help_msg = cmd_itself
+            print(' ' * 4 + '{0}\t\t{1}'.format(cmd_name, help_msg))
 
     def execute(self, lineno, cmd_name, args):
         if not cmd_name in self._commands.keys():
@@ -329,7 +353,7 @@ class KngetShell(Knget):
             # Matched!
             try:
                 callback(*args)
-            except ValueError:
+            except (ValueError, OSError):
                 return sys.stderr.write(help_msg)
  
     def session(self):
