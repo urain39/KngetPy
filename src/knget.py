@@ -73,7 +73,7 @@ class KngetError(Exception):
     pass
 
 
-class Knget():
+class Knget(object):
     '''KngetPy Base Class.
     '''
     def __init__(self, config):
@@ -285,7 +285,7 @@ class KngetShell(Knget):
 
     def __init__(self, config):
         self._commands = {}
-        super(type(self), self).__init__(config)
+        super(self.__class__, self).__init__(config)
 
         # cmd_name, implement, args_count, help_msg
         self.cmd_register('ls', self.listdir, 1, 'ls <dir_path>')
@@ -298,7 +298,7 @@ class KngetShell(Knget):
     def run(self, tags, begin, end):
         ''' Override method of Class Knget
         '''
-        return super(type(self),self).run(tags, int(begin), int(end))
+        return super(self.__class__, self).run(tags, int(begin), int(end))
 
     def listdir(self, dir_path):
         if os.path.isdir(dir_path):
