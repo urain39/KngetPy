@@ -17,7 +17,7 @@ rm config.ini && \
 python knget.py 'loli game_cg' 9 9 || exit $?
 
 echo "====== KngetShell ======"
-(echo "task seifuku sunflower 1 3" | python knget.py) || exit $?
+(echo "run seifuku sunflower 1 3" | python knget.py) || exit $?
 
 # Cleanup
 rm -rf kn-*
