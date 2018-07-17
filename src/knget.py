@@ -390,7 +390,7 @@ class KngetShell(Knget):
             # https://github.com/jonathanslenders/python-prompt-toolkit/blob/master/examples/prompts/history/slow-history.py
             # https://github.com/jonathanslenders/python-prompt-toolkit/blob/master/examples/prompts/history/persistent-history.py
             _session = PromptSession(message=_PROMPT_STR,
-                                     history=FileHistory(os.getcwd() + 'history.txt'))
+                                     history=FileHistory(os.getcwd() + '/history.txt'))
             while True:
                 line = _session.prompt()
                 line = shlex.split(line)
