@@ -342,10 +342,11 @@ class KngetShell(Knget):
 
         for cmd_name, cmd_itself in self._commands.items():
             _, _, help_msg = cmd_itself
-            print(' ' * 4 + '{0}\t\t{1}'.format(cmd_name, help_msg))
+            print(' ' * 4 + '{0:10s}{1}'.format(cmd_name, help_msg))
 
     def execute(self, lineno, cmd_name, args):
         if not cmd_name in self._commands.keys():
+            self._msg2('#%d: Not found command %s\n' % (lineno, cmd_name))
             return self.help()
         else:
             # Unpack
