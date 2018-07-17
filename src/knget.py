@@ -288,11 +288,11 @@ class KngetShell(Knget):
         super(self.__class__, self).__init__(config)
 
         # cmd_name, implement, args_count, help_msg
-        self.cmd_register('ls', self.listdir, 1, 'ls <dir_path>')
-        self.cmd_register('cd', self.chdir, 1, 'cd <dir_path>')
-        self.cmd_register('rm', self.remove, 1, 'rm <file_path>')
-        self.cmd_register('run', self.run, 3, 'run <tags> <[begin]<end>>')
-        self.cmd_register('rmdir', self.rmdir, 1, 'rmdir <dir_path>')
+        self.cmd_register('ls', self.listdir, 1, 'ls <dir path>')
+        self.cmd_register('cd', self.chdir, 1, 'cd <dir path>')
+        self.cmd_register('rm', self.remove, 1, 'rm <file path>')
+        self.cmd_register('run', self.run, 3, 'run <tags> <begin> <end>')
+        self.cmd_register('rmdir', self.rmdir, 1, 'rmdir <dir path>')
         self.cmd_register('reload', self.reload, 0, 'reload config')
         self.cmd_register('exit', self.exit, 0, 'exit this session')
 
