@@ -264,6 +264,11 @@ class Knget(object):
                     params=payload )
 
                 self._task_pool = response.json()
+
+                if not isinstance(self._task_pool, list):
+                    self._msg2('Error: response is not a list!')
+                    self._msg2('Breaking...')
+                    break
             except (requests.exceptions.RequestException, ValueError) as e:
                 self._msg2('Error: {0}'.format(e))
                 self._msg2('Quitting...')
