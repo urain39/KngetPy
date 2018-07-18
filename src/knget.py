@@ -58,7 +58,7 @@ _DEFAULT_CONFIG = {
         'post_tags_blacklist': 'video mp4 webm'
     },
     'download': {
-        'timeout': 10,
+        'timeout': 30,
         'maxsize': 10,
         'bufsize': 1048576,
         'retry_wait': 8,
@@ -112,6 +112,8 @@ class Knget(object):
             save_dir = 'kn-' + '-'.join(
                 tags.split()
             )
+
+            # FIXME: Windows filename cannot with '< > / \ | : " * ?'
 
             if not os.path.exists(save_dir):
                 if os.path.isfile(save_dir):
