@@ -6,6 +6,6 @@ from . import base
 
 if __name__ == '__main__':
     try:
-        base.main((None,))
+        base.main(sys.argv)
     except (KeyboardInterrupt, EOFError):
         sys.exit(base._NO_ERROR)

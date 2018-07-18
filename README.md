@@ -4,4 +4,4 @@
 
 A simple light fast booru-like downloader written on Python
 
-Usage: `knget.py <tags> < [begin] <end> >`
+Usage: `python -m knget <tags> < [begin] <end> >`
