@@ -2,4 +2,6 @@
 
 ### KngetPy2.0 ###
 
+A simple light fast booru-like downloader written on Python
+
 Usage: `knget.py <tags> < [begin] <end> >`

@@ -107,8 +107,12 @@ venv.bak/
 *.jpg
 *.png
 kn-*/
+cookies.json
 
 # KngetPy Screenshots
 !pics/screenshot1.png
 !pics/screenshot2.png
 !pics/screenshot3.png
+
+# KngetPy History
+history.txt
