@@ -10,8 +10,8 @@ import random
 import json
 import shlex
 import requests
-from inifile import IniFile
-from inifile import IniException
+from .inifile import IniFile
+from .inifile import IniException
 from prompt_toolkit import PromptSession
 from prompt_toolkit.history import FileHistory
 
