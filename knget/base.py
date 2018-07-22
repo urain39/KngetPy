@@ -296,35 +296,19 @@ class KngetShell(Knget):
         super(self.__class__, self).__init__(config)
 
         # cmd_name, implement, args_count, help_msg
-        self.cmd_register('ls', self.listdir, 1, 'ls <dir path>')
-        self.cmd_register('cd', self.chdir, 1, 'cd <dir path>')
-        self.cmd_register('rm', self.remove, 1, 'rm <file path>')
         self.cmd_register('run', self.run, 3, 'run <tags> <begin> <end>')
-        self.cmd_register('rmdir', self.rmdir, 1, 'rmdir <dir path>')
         self.cmd_register('reload', self.reload, 0, 'reload config')
         self.cmd_register('exit', self.exit, 0, 'exit this session')
+        self.cmd_register('runcmd', self.runcmd, 1, 'run terminal command')
 
     def run(self, tags, begin, end):
         ''' Override method of Class Knget
         '''
         return super(self.__class__, self).run(tags, int(begin), int(end))
 
-    def listdir(self, dir_path):
-        if os.path.isdir(dir_path):
-            for _dir in os.listdir(dir_path):
-                print(_dir)
-
-    def chdir(self, dir_path):
-        if os.path.isdir(dir_path):
-            os.chdir(dir_path)
-
-    def remove(self, file_path):
-        if os.path.isfile(file_path):
-            os.remove(file_path)
-
-    def rmdir(self, dir_path):
-        if os.path.isdir(dir_path):
-            os.rmdir(dir_path)
+    def runcmd(self, cmd_name):
+        os.chdir(self._curdir)
+        os.system(cmd_name)
 
     def reload(self, config=None):
         config = config or load_config()
