@@ -472,7 +472,7 @@ class KngetShell(Knget):
 def usage(status=None):
     print(_USAGE)
 
-    if status is Non:
+    if status is None:
         return
     else:
         sys.exit(status)
