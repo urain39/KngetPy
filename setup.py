@@ -2,6 +2,8 @@
 
 # https://github.com/pypa/sampleproject
 
+# XXX: Use version.py replace from xxx import
+
 from kngetx import __author__
 from kngetx import __email__
 from kngetx import __license__
@@ -16,7 +18,7 @@ with open('README') as fp:
 
 # Requirements
 with  open('requirements.txt') as fp:
-    requirements = fp.read().decode().split()
+    requirements = fp.read().split()
 
 setup(name='kngetx',
       version=__version__,
