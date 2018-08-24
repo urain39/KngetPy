@@ -79,6 +79,7 @@ class KngetError(Exception):
 
 class Knget(object):
     def __init__(self, config):
+        self._seqno = 0
         self._curdir = os.getcwd()
         self._custom = config.get_section('custom')
         self._config = config.get_section('download')
@@ -157,11 +158,14 @@ class Knget(object):
         sys.stderr.write('    => {0}\n'.format(msg))
 
     def _chdir(self, tags):
-            save_dir = 'kn-' + '-'.join(
-                tags.split()
-            )
+            save_dir = 'kn-' + '-'.join(tags.split())
 
             # FIXME: Windows filename cannot with '< > / \ | : " * ?'
+
+            # XXX: As far as i know
+            for i in range(len(save_dir)):
+                if save_dir[i] == ':':
+                    save_dir[i] = '.'
 
             if not os.path.exists(save_dir):
                 if os.path.isfile(save_dir):
@@ -189,6 +193,7 @@ class Knget(object):
         )
 
         file_name = file_name.split('?')[0]
+        file_name = '{0:06i}_{1:06s}'.format(self._seqno, file_name)
 
         response = self._session.get(
             url=self._check_url(url),
@@ -284,6 +289,7 @@ class Knget(object):
 
     def run(self, tags, begin, end):
         self._chdir(tags)
+        self._seqno = 0
 
         for page in range(begin, end + 1):
             self._load_faker()
@@ -391,6 +397,7 @@ class KngetShell(Knget):
         }
         propkey = propkey.split('.')
 
+        # Keep stupid!
         if len(propkey) == 2:
             section, key = propkey
             

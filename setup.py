@@ -2,12 +2,18 @@
 
 # https://github.com/pypa/sampleproject
 
-# XXX: Use version.py replace from xxx import
+# NOTE: Just a dummy varable here
+#       It's a simple way to ignore error!
+__author__ = None
+__email__ = None
+__version__ = None
+__license__ = None
 
-from kngetx import __author__
-from kngetx import __email__
-from kngetx import __license__
-from kngetx import __version__
+# NOTE: Now get the real value!
+with open('kngetx/version.py') as fp:
+    content = fp.read()
+    exec(content)
+
 
 # Always prefer setuptools over distutils
 from setuptools import setup, find_packages
@@ -29,7 +35,7 @@ setup(name='kngetx',
       license=__license__,
       keywords=['kngetx', 'kngetpyx', 'danbooru',
                 'yandere', 'yande', 'konachan', 'sankaku'],
-      url='https://gitlab.com/urain39/KngetPyX',
+      url='https://github.com/urain39/KngetPyX',
       packages=find_packages(exclude=['contrib', 'docs', 'tests']),
       install_requires=[requirements],
       platforms='any',

@@ -1,9 +1,8 @@
 # -*- coding: utf-8 -*-
 
-__author__ = "urain39"
-__copyright__ = "Copyright 2017-2018 urain39"
-__license__ = "MIT LICENSE"
-__email__ = "urain39@qq.com"
-__version__ = '0.1.4.3'
+from .version import __author__
+from .version import __email__
+from .version import __version__
+from .version import __license__
 
 from .base import *
