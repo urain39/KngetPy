@@ -2,12 +2,17 @@
 
 # https://github.com/pypa/sampleproject
 
-# XXX: Use version.py replace from xxx import
+# NOTE: Just a dummy varable here
+#       It's a simple way to ignore error!
+__author__ = None
+__email__ = None
+__version__ = None
+__license__ = None
 
-from knget import __author__
-from knget import __email__
-from knget import __license__
-from knget import __version__
+# NOTE: Now get the real value!
+with open('knget/version.py') as fp:
+    content = fp.read()
+    exec(content)
 
 # Always prefer setuptools over distutils
 from setuptools import setup, find_packages

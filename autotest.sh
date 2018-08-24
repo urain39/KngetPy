@@ -19,7 +19,17 @@ rm ~/knget.ini && \
 knget 'loli game_cg' 9 9 || exit $?
 
 echo "====== KngetShell ======"
-(echo "run 'seifuku sunflower' 1 3" | python -m knget) || exit $?
+(echo "run 'seifuku sunflower' 1 3" | knget) || exit $?
+
+
+knget <<EOF
+run tagme 1 1
+reload
+exit
+EOF
+
+echo "===== Test Build ====="
+python setup.py sdist install --user || exit $?
 
 # Cleanup
 rm -rf kn-*
