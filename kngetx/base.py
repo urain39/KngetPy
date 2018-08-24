@@ -163,9 +163,7 @@ class Knget(object):
             # FIXME: Windows filename cannot with '< > / \ | : " * ?'
 
             # XXX: As far as i know
-            for i in range(len(save_dir)):
-                if save_dir[i] == ':':
-                    save_dir[i] = '.'
+            save_dir = save_dir.replace(':', '.')
 
             if not os.path.exists(save_dir):
                 if os.path.isfile(save_dir):
@@ -193,7 +191,9 @@ class Knget(object):
         )
 
         file_name = file_name.split('?')[0]
-        file_name = '{0:06i}_{1:06s}'.format(self._seqno, file_name)
+        file_name = '{0:06d}_{1:6s}'.format(self._seqno, file_name)
+
+        self._seqno += 1 # Next
 
         response = self._session.get(
             url=self._check_url(url),
@@ -327,8 +327,7 @@ class Knget(object):
             # Do the job from index data.
             if len(self._task_pool) < 1:
                 break
-            # NOTE: int(xxx) to fix compare bug on Python2.
-            elif len(self._task_pool) < int(self._custom.get('page_limit')):
+            elif len(self._task_pool) < self._custom.get('page_limit'):
                 self.work()
                 break
             else:
@@ -353,7 +352,6 @@ class KngetShell(Knget):
         self.cmd_register('login', self.login, 0, 'login your account')
         self.cmd_register('debug', self.debug, 0, 'show debug messages')
         self.cmd_register('runcmd', self.runcmd, 1, 'run terminal command')
-        self.cmd_register('setprop', self.setprop, 2, 'setprop <propkey> <value>')
 
     def run(self, tags, begin, end):
         ''' Override method of Class Knget
@@ -388,27 +386,6 @@ class KngetShell(Knget):
         self._msg2('Headers: {0}'.format(self._session.headers))
         self._msg2('Configs: {0}'.format(self._config))
         self._msg2('Customs: {0}'.format(self._custom))
-
-    def setprop(self, propkey, value):
-        _config = {
-            'custom': self._custom,
-            'download': self._config,
-            'account': self._account
-        }
-        propkey = propkey.split('.')
-
-        # Keep stupid!
-        if len(propkey) == 2:
-            section, key = propkey
-            
-            if not (section in _config.keys() and
-                     key in _config[section].keys()):
-                return
-            _config[section][key] = value
-
-            config = IniFile()
-            config.reset(_config)
-            self.reload(config)
 
     def cmd_register(self, cmd_name, callback, args_count=0, help_msg=None):
         ''' cmd_register: register a implemented method or function as a command
