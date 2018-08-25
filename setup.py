@@ -10,7 +10,7 @@ __version__ = None
 __license__ = None
 
 # NOTE: Now get the real value!
-with open('kngetx/version.py') as fp:
+with open('kngetx/__version__.py') as fp:
     content = fp.read()
     exec(content)
 
