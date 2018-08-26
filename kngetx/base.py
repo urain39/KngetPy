@@ -79,7 +79,7 @@ class KngetError(Exception):
 
 class Knget(object):
     def __init__(self, config):
-        self._seqno = 0
+        self._ordered_id = 0
         self._curdir = os.getcwd()
         self._custom = config.get_section('custom')
         self._config = config.get_section('download')
@@ -99,7 +99,7 @@ class Knget(object):
             self._msg('Loading cookies.')
             self._session.cookies.load()
 
-    def _load_faker(self):
+    def _loader_fake(self):
         load_time_fake = [
             int(i) for i in (
                 self._custom.get('load_time_fake') or '1-3'
@@ -193,9 +193,9 @@ class Knget(object):
         )
 
         file_name = file_name.split('?')[0]
-        file_name = '{0:06d}_{1:6s}'.format(self._seqno, file_name)
+        file_name = '{0:06d}_{1:6s}'.format(self._ordered_id, file_name)
 
-        self._seqno += 1 # Next
+        self._ordered_id += 1 # Next
 
         response = self._session.get(
             url=self._check_url(url),
@@ -204,7 +204,7 @@ class Knget(object):
             params=self._login_data
         )
 
-        self._load_faker()
+        self._loader_fake()
         if ( not os.path.exists(file_name) or
                 os.path.getsize(file_name) != file_size ):
             with open(file_name, 'wb') as fp:
@@ -291,10 +291,10 @@ class Knget(object):
 
     def run(self, tags, begin, end):
         self._chdir(tags)
-        self._seqno = 0
+        self._ordered_id = 0
 
         for page in range(begin, end + 1):
-            self._load_faker()
+            self._loader_fake()
             self._msg('[Page = {0} | tags = {1}]'.format(page, tags))
 
             payload = {
