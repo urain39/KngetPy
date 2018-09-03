@@ -195,8 +195,6 @@ class Knget(object):
         file_name = file_name.split('?')[0]
         file_name = '{0:06d}_{1:6s}'.format(self._ordered_id, file_name)
 
-        self._ordered_id += 1 # Next
-
         response = self._session.get(
             url=self._check_url(url),
             stream=True,
@@ -277,6 +275,7 @@ class Knget(object):
                                     (cur_jobs_count, jobs_count) )
 
                         self._download(job)
+                        self._ordered_id += 1 # Next
                         break
                     except requests.exceptions.RequestException as e:
                         if cur_retry_count < retry_count:
