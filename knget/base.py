@@ -115,6 +115,11 @@ class Knget(object):
 
             # FIXME: Windows filename cannot with '< > / \ | : " * ?'
 
+            # XXX: As far as i know
+            save_dir = save_dir.replace(':', '.')
+            save_dir = save_dir.replace('*', '+')
+            save_dir = save_dir.replace('?', '!')
+
             if not os.path.exists(save_dir):
                 if os.path.isfile(save_dir):
                     os.remove(save_dir)
