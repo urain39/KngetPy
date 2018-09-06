@@ -77,6 +77,7 @@ class Knget(object):
     '''KngetPy Base Class.
     '''
     def __init__(self, config):
+        self._ordered_id = 0
         self._curdir = os.getcwd()
         self._custom = config.get_section('custom')
         self._config = config.get_section('download')
@@ -146,6 +147,7 @@ class Knget(object):
         )
 
         file_name = file_name.split('?')[0]
+        file_name = '{0:06d}_{1:6s}'.format(self._ordered_id, file_name)
 
         response = self._session.get(
             url=self._check_url(url),
@@ -236,6 +238,7 @@ class Knget(object):
                                     (cur_jobs_count, jobs_count) )
 
                         self._download(job)
+                        self._ordered_id += 1 # Next
                         break
                     except requests.exceptions.RequestException as e:
                         if cur_retry_count < retry_count:
@@ -250,6 +253,7 @@ class Knget(object):
 
     def run(self, tags, begin, end):
         self._chdir(tags)
+        self._ordered_id = 0
 
         for page in range(begin, end + 1):
             self._load_faker()
