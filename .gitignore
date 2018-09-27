@@ -119,3 +119,7 @@ history.txt
 
 # KngetPy Cookies
 cookies.txt
+
+# IDE Settings's directory
+.idea/
+.vscode/
