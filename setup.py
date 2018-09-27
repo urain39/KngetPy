@@ -2,7 +2,7 @@
 
 # https://github.com/pypa/sampleproject
 
-# NOTE: Just a dummy varable here
+# NOTE: Just dummy variables here
 #       It's a simple way to ignore error!
 __author__ = None
 __email__ = None
