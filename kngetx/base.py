@@ -229,10 +229,12 @@ class Knget(object):
             if len(os.listdir(_dir)) < 1:
                 os.rmdir(_dir)
                 self._msg2('save_dir {0} is empty, removed.'.format(_dir))
+                return
 
             if len(os.listdir(_dir)) == 1 and os.path.exists(_dir + '/meta_data.json'):
                 os.removedirs(_dir)
                 self._msg2('save_dir {0} not found images, removed.'.format(_dir))
+                return
 
     def _filter(self):
         post_rating = self._custom.get('post_rating')
