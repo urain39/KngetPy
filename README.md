@@ -1,15 +1,17 @@
 # KngetPy Sankaku V2.2
 
-### 使用方法 ###
+[![Build status](https://ci.appveyor.com/api/projects/status/tona2atf9w5342r6/branch/master?svg=true)](https://ci.appveyor.com/project/urain39/kngetpyx/branch/master)
+
+### User Guide ###
 
 ```shell
-python -m kngetx <标签> <[起始页]结束页>
+python -m kngetx <tags> <[begin] end>
 
-示例:
+For examples:
 	python -m kngetx 'seifuku' 1
 ```
 
-### 自定义配置 ###
+### Custom configuration ###
 
 ```ini
 ; KngetPy Project.
@@ -31,7 +33,6 @@ password=knget.py
 base_url=https://capi.sankakucomplex.com
 ;base_url=https://iapi.sankakucomplex.com
 page_limit=10
-; 已废弃，在早期版本中针对yandere所使用
 json_regex=Post.register\((\{.+\})\)
 top_tags_count=10
 load_time_fake=3-5
