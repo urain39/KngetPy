@@ -60,8 +60,9 @@ _DEFAULT_CONFIG = {
         'user_agent': 'SCChannelApp/3.0 (Android; black)',
         'load_time_fake': '1-2',
         'post_rating': 'e q s',
-        'post_min_score': 100,
-        'post_tags_blacklist': 'video mp4 webm'
+        'post_min_score': 0,
+        'post_tags_blacklist': 'video mp4 webm',
+        'save_cookies': False
     },
     'download': {
         'timeout': 30,
@@ -349,7 +350,9 @@ class Knget(object):
             else:
                 self.work()
         self._cleanup()
-        self._session.cookies.save()
+
+        if self._custom.get('save_cookies'):
+            self._session.cookies.save()
 
 
 class KngetShell(Knget):
