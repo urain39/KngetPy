@@ -20,7 +20,8 @@ from prompt_toolkit.history import InMemoryHistory
 __all__ = [
     'main',
     'Knget',
-    'KngetShell'
+    'KngetShell',
+    'KngetError'
 ]
 
 _NO_ERROR = 0
@@ -41,7 +42,7 @@ _DEFAULT_CONFIG = {
         'page_limit': 10,
         'user_agent': 'Mozilla/5.0 (Linux; LittleKaiju)',
         'load_time_fake': '1-2',
-        'post_rating': 's',  # at least one of 'e q s', split by space
+        'post_rating': 's',  # at least one of 'e q s', split by space.
         'post_min_score': 0,
         'post_tags_blacklist': 'video mp4 webm',
         'save_cookies': False
@@ -72,12 +73,7 @@ class KngetError(Exception):
 class Knget(object):
     def load_config(self):
         config = {}
-        config_path = 'configx.json'
-
-        if os.name == 'posix':
-            config_path = os.getenv('HOME') + '/.knget.json'
-        elif os.name == 'nt':
-            config_path = os.getenv('HOMEPATH') + '/.knget.json'
+        config_path = self._homedir + '/knget.json'
 
         if os.path.exists(config_path):
             with open(config_path) as fp:
@@ -105,6 +101,7 @@ class Knget(object):
     def __init__(self):
         self._ordered_id = 0
         self._curdir = os.getcwd()
+        self._homedir = os.getenv('HOME', '.')
         self._custom = {}
         self._config = {}
         self._account = {}
@@ -112,16 +109,17 @@ class Knget(object):
         self._login_data = dict()
         self._task_pool = dict()
         self._meta_infos = list()
+
+        self.load_config()
         self._session.headers = {
                 'Accept': '*/*',
                 'Connection': 'Keep-Alive',
                 'User-Agent': self._custom.get('user_agent'),
         }
 
-        self.load_config()
-        self._session.cookies = cookielib.LWPCookieJar(self._curdir + '/cookies.txt')
+        self._session.cookies = cookielib.LWPCookieJar(self._homedir + '/cookies.txt')
 
-        if os.path.exists(self._curdir + '/cookies.txt'):
+        if os.path.exists(self._homedir + '/cookies.txt'):
             self._msg('Loading cookies.')
             self._session.cookies.load()
 
@@ -380,7 +378,7 @@ class KngetCommand(object):
         self._commands = {}
 
     def register(self, argtypes=r'M', help_msg=None):
-        """"register:
+        """register:
         :param argtypes: a str of the command args type.
             M: Myself -> self
             S: String -> str

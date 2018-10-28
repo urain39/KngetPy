@@ -10,7 +10,7 @@ __version__ = None
 __license__ = None
 
 # NOTE: Now get the real value!
-with open('kngetx/__version__.py') as fp:
+with open('knget/__version__.py') as fp:
     content = fp.read()
     exec(content)
 
@@ -26,16 +26,16 @@ with open('README') as fp:
 with  open('requirements.txt') as fp:
     requirements = fp.read().split()
 
-setup(name='kngetx',
+setup(name='knget',
       version=__version__,
       description='A simple light fast booru-like downloader written on Python',
       long_description=long_description,
       author=__author__,
       author_email=__email__,
       license=__license__,
-      keywords=['kngetx', 'kngetpyx', 'danbooru',
+      keywords=['knget', 'kngetpy', 'danbooru',
                 'yandere', 'yande', 'konachan', 'sankaku'],
-      url='https://github.com/urain39/KngetPyX',
+      url='https://github.com/urain39/KngetPy',
       packages=find_packages(exclude=['contrib', 'docs', 'tests']),
       install_requires=[requirements],
       platforms='any',
