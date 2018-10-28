@@ -380,7 +380,7 @@ class KngetCommand(object):
         """register a method to a command.
 
         NOTE: Method registered here is a Knget-like method,
-              e.g. registered `run` command -> KngetShell.run
+              e.g. registered `run` command -> `KngetShell.run`
               So we call it should add `self` at first.
 
             See also: KngetShell.execute()
@@ -423,9 +423,9 @@ class KngetShell(Knget):
     """KngetPy class extended for REPL.
     """
 
-    # NOTE: self.command is same as KngetShell.command.
-    #       So following this line, we use self.command replace
-    #       the KngetShell.command in the methods.
+    # NOTE: `self.command` is same as `KngetShell.command`.
+    #       So following this line, we use `self.command`
+    #       replace the `KngetShell.command` in the methods.
     command = KngetCommand()
 
     def __init__(self):
@@ -433,7 +433,7 @@ class KngetShell(Knget):
 
     @command.register(argtypes=r'MSII', help_msg="<tags> <begin> <end>")
     def run(self, tags, begin, end):
-        """ override method of Class Knget
+        """ override method of class Knget
         """
         return super(self.__class__, self).run(tags, int(begin), int(end))
 
@@ -452,7 +452,7 @@ class KngetShell(Knget):
 
     @command.register(argtypes=r'M', help_msg="show the debug info.")
     def debug(self):
-        """ override method of Knget._debug_info()
+        """ override method of `Knget._debug_info()`
         """
         self._debug_info()
 
