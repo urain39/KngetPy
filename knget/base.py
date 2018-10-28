@@ -431,8 +431,8 @@ class KngetShell(Knget):
     #       replace the `KngetShell.command` in the methods.
     command = KngetCommand()
 
-    def __init__(self):
-        super(self.__class__, self).__init__()
+    def __init__(self, config_later=False):
+        super(self.__class__, self).__init__(config_later=config_later)
 
     @command.register(argtypes=r'MSII', help_msg="<tags> <begin> <end>")
     def run(self, tags, begin, end):
