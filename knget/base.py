@@ -398,10 +398,6 @@ class KngetCommand(object):
         """
 
         def format_args(method):
-            self._commands[method.__name__] = (
-                method, help_msg
-            )
-
             def wrapped_method(*args, **kwargs):
                 if len(args) != len(argtypes):
                     raise KngetError("args count is not equals to argtypes count.")
@@ -417,6 +413,9 @@ class KngetCommand(object):
 
                 return method(*argv, **kwargs)
 
+            self._commands[method.__name__] = (
+                wrapped_method, help_msg
+            )
             return wrapped_method
 
         # format_args first touch the method
@@ -439,7 +438,7 @@ class KngetShell(Knget):
     def run(self, tags, begin, end):
         """ override method of class Knget
         """
-        return super(self.__class__, self).run(tags, int(begin), int(end))
+        return super(self.__class__, self).run(tags, begin, end)
 
     @command.register(argtypes=r'M', help_msg="exit this program.")
     def exit(self):
