@@ -88,7 +88,7 @@ class Knget(object):
         self._config = config.get('download')
 
     def _debug_info(self):
-        """ Knget._debug_info: show a list of recently variables info.
+        """ show a list of recently variables info.
         """
         self._msg('DEBUG')
         self._msg2('WorkDir: {0}'.format(self._curdir))
@@ -370,15 +370,21 @@ class Knget(object):
 
 
 class KngetCommand(object):
-    """KngetCommand:
-       Manage the commands of the KngetShell.
+    """Manage the commands of the KngetShell.
     """
 
     def __init__(self):
         self._commands = {}
 
     def register(self, argtypes=r'M', help_msg=None):
-        """register:
+        """register a method to a command.
+
+        NOTE: Method registered here is a Knget-like method,
+              e.g. registered `run` command -> KngetShell.run
+              So we call it should add `self` at first.
+
+            See also: KngetShell.execute()
+
         :param argtypes: a str of the command args type.
             M: Myself -> self
             S: String -> str
@@ -427,7 +433,7 @@ class KngetShell(Knget):
 
     @command.register(argtypes=r'MSII', help_msg="<tags> <begin> <end>")
     def run(self, tags, begin, end):
-        """ Override method of Class Knget
+        """ override method of Class Knget
         """
         return super(self.__class__, self).run(tags, int(begin), int(end))
 
@@ -446,8 +452,7 @@ class KngetShell(Knget):
 
     @command.register(argtypes=r'M', help_msg="show the debug info.")
     def debug(self):
-        """ debug: Override method of Knget._debug_info()
-            :return: None
+        """ override method of Knget._debug_info()
         """
         self._debug_info()
 
@@ -481,8 +486,8 @@ class KngetShell(Knget):
             callback, help_msg = self.command._commands[cmd_name]
 
             try:
-                # NOTE: Some reasons here, change the method to the function
-                #       So we call the callback function need add the `self` arg.
+                # NOTE: Some reasons here, we lose the `self` in args
+                #       So we call the callback  should add the `self` at first.
                 callback(self, *args)
             except (ValueError, OSError) as e:
                 self._msg2('Error: {0}'.format(e))
