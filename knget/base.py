@@ -21,7 +21,8 @@ __all__ = [
     'main',
     'Knget',
     'KngetShell',
-    'KngetError'
+    'KngetError',
+    'KngetCommand'
 ]
 
 _NO_ERROR = 0
@@ -71,9 +72,9 @@ class KngetError(Exception):
 
 
 class Knget(object):
-    def load_config(self):
+    def load_config(self, config_path=None):
         config = {}
-        config_path = self._homedir + '/knget.json'
+        config_path = config_path or (self._homedir + '/knget.json')
 
         if os.path.exists(config_path):
             with open(config_path) as fp:
@@ -106,9 +107,10 @@ class Knget(object):
         self._config = {}
         self._account = {}
         self._session = Session()
-        self._login_data = dict()
-        self._task_pool = dict()
-        self._meta_infos = list()
+        self._logined = False
+        self._login_data = {}
+        self._task_pool = {}
+        self._meta_infos = []
 
         self.load_config()
         self._session.headers = {
@@ -136,10 +138,8 @@ class Knget(object):
         time.sleep(load_time)
 
     def _login(self, username, password):
-        # for cookie_name in [cookie.name.lower() for cookie in self._session.cookies]:
-        #     if 'sankaku' in cookie_name:
-        #         self._msg('Logined, skip login.')
-        #         return
+        if self._logined:
+            return self._msg2("Logined, skip login.")
 
         password_hash = sha1(
             'choujin-steiner--{0}--'.format(password).encode()
@@ -163,7 +163,10 @@ class Knget(object):
         )
 
         if not (response.ok and response.json().get('success')):
-            raise KngetError('Cannot login!', reason=response.json().get('reason'))
+            raise KngetError('Cannot login!',
+                             reason=response.json().get('reason'))
+
+        self._logined = True
 
     def _msg(self, msg):
         sys.stderr.write('=> {0}\n'.format(msg))
