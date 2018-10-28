@@ -68,7 +68,7 @@ class KngetError(Exception):
 
     def __init__(self, msg, reason=None):
         self._reason = reason
-        super(self.__class__, self).__init__(msg)
+        super(KngetError, self).__init__(msg)
 
 
 class Knget(object):
@@ -433,13 +433,13 @@ class KngetShell(Knget):
     command = KngetCommand()
 
     def __init__(self, config_later=False):
-        super(self.__class__, self).__init__(config_later=config_later)
+        super(KngetShell, self).__init__(config_later=config_later)
 
     @command.register(argtypes=r'MSII', help_msg="<tags> <begin> <end>")
     def run(self, tags, begin, end):
         """Override method of class Knget
         """
-        return super(self.__class__, self).run(tags, begin, end)
+        return super(KngetShell, self).run(tags, begin, end)
 
     @command.register(argtypes=r'M', help_msg="exit this program.")
     def exit(self):
