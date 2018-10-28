@@ -546,9 +546,9 @@ def main(argv):
     if len(argv) < 3:
         KngetShell().session()
     elif len(argv) == 3:
-        Knget().run(argv[1], 1, int(argv[2]))
+        KngetShell().run(argv[1], 1, argv[2])
     elif len(argv) == 4:
-        Knget().run(argv[1], int(argv[2]), int(argv[3]))
+        KngetShell().run(argv[1], argv[2], argv[3])
     else:
         return usage(_USAGE_ERROR)
 
@@ -558,3 +558,4 @@ if __name__ == '__main__':
         main(sys.argv)
     except (KeyboardInterrupt, EOFError):
         sys.exit(_NO_ERROR)
+
