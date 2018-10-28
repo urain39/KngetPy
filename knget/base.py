@@ -463,9 +463,6 @@ class KngetShell(Knget):
     @command.register(argtypes=r'M', help_msg="reload the config.")
     def reload(self, config=None):
         self.load_config()
-        self._custom = config.get('custom')
-        self._account = config.get('account')
-        self._config = config.get('download')
         self._session.headers = {
                 'Accept': '*/*',
                 'Connection': 'Keep-Alive',
