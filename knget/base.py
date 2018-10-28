@@ -89,7 +89,7 @@ class Knget(object):
         self._config = config.get('download')
 
     def _debug_info(self):
-        """ show a list of recently variables info.
+        """Show a list of recently variables info.
         """
         self._msg('DEBUG')
         self._msg2('WorkDir: {0}'.format(self._curdir))
@@ -381,7 +381,7 @@ class KngetCommand(object):
         self._commands = {}
 
     def register(self, argtypes=r'M', help_msg=None):
-        """register a method to a command.
+        """Register a method to a command.
 
         NOTE: Method registered here is a Knget-like method,
               e.g. registered `run` command -> `KngetShell.run`
@@ -402,6 +402,7 @@ class KngetCommand(object):
                 if len(args) != len(argtypes):
                     raise KngetError("args count is not equals to argtypes count.")
 
+                # NOTE: We cannot modify the args.
                 argv = []
                 for i in range(len(argtypes)):
                     if argtypes[i] in ('m', 'M'):
@@ -436,7 +437,7 @@ class KngetShell(Knget):
 
     @command.register(argtypes=r'MSII', help_msg="<tags> <begin> <end>")
     def run(self, tags, begin, end):
-        """ override method of class Knget
+        """Override method of class Knget
         """
         return super(self.__class__, self).run(tags, begin, end)
 
@@ -455,7 +456,7 @@ class KngetShell(Knget):
 
     @command.register(argtypes=r'M', help_msg="show the debug info.")
     def debug(self):
-        """ override method of `Knget._debug_info()`
+        """Override method of `Knget._debug_info()`
         """
         self._debug_info()
 
