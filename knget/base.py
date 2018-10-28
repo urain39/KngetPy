@@ -99,7 +99,7 @@ class Knget(object):
         self._msg2('Configs: {0}'.format(self._config))
         self._msg2('Customs: {0}'.format(self._custom))
 
-    def __init__(self):
+    def __init__(self, config_loaded=False):
         self._ordered_id = 0
         self._curdir = os.getcwd()
         self._homedir = os.getenv('HOME', '.')
@@ -112,7 +112,9 @@ class Knget(object):
         self._task_pool = {}
         self._meta_infos = []
 
-        self.load_config()
+        if is not config_loaded:
+            self.load_config()
+
         self._session.headers = {
                 'Accept': '*/*',
                 'Connection': 'Keep-Alive',
