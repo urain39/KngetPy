@@ -99,7 +99,7 @@ class Knget(object):
         self._msg2('Configs: {0}'.format(self._config))
         self._msg2('Customs: {0}'.format(self._custom))
 
-    def __init__(self, config_later=False):
+    def __init__(self):
         self._ordered_id = 0
         self._curdir = os.getcwd()
         self._homedir = os.getenv('HOME', '.')
@@ -112,19 +112,18 @@ class Knget(object):
         self._task_pool = {}
         self._meta_infos = []
 
-        if not config_later:
-            self.load_config()
-            self._session.headers = {
-                    'Accept': '*/*',
-                    'Connection': 'Keep-Alive',
-                    'User-Agent': self._custom.get('user_agent'),
-            }
+        self.load_config()
+        self._session.headers = {
+            'Accept': '*/*',
+            'Connection': 'Keep-Alive',
+            'User-Agent': self._custom.get('user_agent'),
+        }
 
-            self._session.cookies = cookielib.LWPCookieJar(self._homedir + '/cookies.txt')
+        self._session.cookies = cookielib.LWPCookieJar(self._homedir + '/cookies.txt')
 
-            if os.path.exists(self._homedir + '/cookies.txt'):
-                self._msg('Loading cookies.')
-                self._session.cookies.load()
+        if os.path.exists(self._homedir + '/cookies.txt'):
+            self._msg('Loading cookies.')
+            self._session.cookies.load()
 
     def _loader_fake(self):
         load_time_fake = [
@@ -432,8 +431,8 @@ class KngetShell(Knget):
     #       replace the `KngetShell.command` in the methods.
     command = KngetCommand()
 
-    def __init__(self, config_later=False):
-        super(KngetShell, self).__init__(config_later=config_later)
+    def __init__(self):
+        super(KngetShell, self).__init__()
 
     @command.register(argtypes=r'MSII', help_msg="<tags> <begin> <end>")
     def run(self, tags, begin, end):
