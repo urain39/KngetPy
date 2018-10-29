@@ -438,7 +438,7 @@ class KngetShell(Knget):
     def run(self, tags, begin, end):
         """Override method of class Knget
         """
-        return super(KngetShell, self).run(tags, begin, end)
+        super(KngetShell, self).run(tags, begin, end)
 
     @command.register(argtypes=r'M', help_msg="exit this program.")
     def exit(self):
