@@ -493,7 +493,7 @@ class KngetShell(Knget):
                 self._msg2('Error: {0}'.format(e))
                 self._msg2('Usage: {0}'.format(help_msg))
 
-    def session(self):
+    def session(self, message=_PROMPT_STR):
         lineno = 0
 
         if not sys.stdin.isatty():
@@ -510,7 +510,7 @@ class KngetShell(Knget):
                     continue  # Blank
                 self.execute(lineno, cmd_name=line[0], args=line[1:])
         else:
-            _session = PromptSession(message=_PROMPT_STR,
+            _session = PromptSession(message=message,
                                      history=InMemoryHistory())
             while True:
                 line = _session.prompt()
