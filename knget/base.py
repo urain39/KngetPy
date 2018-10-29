@@ -382,7 +382,7 @@ class KngetCommand(object):
     def register(self, argtypes=r'M', help_msg=None):
         """Register a method to a command.
 
-        NOTE: Method registered here is a Knget-like method,
+        NOTE: Method registered here is unbound method,
               e.g. registered `run` command -> `KngetShell.run`
               So we call it should add `self` at first.
 
@@ -486,8 +486,8 @@ class KngetShell(Knget):
             callback, help_msg = self.command._commands[cmd_name]
 
             try:
-                # NOTE: Some reasons here, we lose the `self` in args
-                #       So we call the callback  should add the `self` at first.
+                # NOTE: callback is a unbound method, So we call
+                #       the callback  should add the `self` at first.
                 callback(self, *args)
             except (ValueError, OSError) as e:
                 self._msg2('Error: {0}'.format(e))
