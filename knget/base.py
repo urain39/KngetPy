@@ -448,7 +448,7 @@ class KngetShell(Knget):
     def login(self):
         self._login(**self._account)
 
-    @command.register(argtypes=r'MS', help_msg="run command in the terminal.")
+    @command.register(argtypes=r'MS', help_msg="run a terminal command.")
     def runcmd(self, cmd_name):
         os.chdir(self._curdir)
         os.system(cmd_name)
