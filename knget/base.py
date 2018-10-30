@@ -257,15 +257,13 @@ class Knget(object):
 
         if post_rating != r'' and post_rating is not None:
             self._task_pool = [
-                task
-                for task in self._task_pool
+                task for task in self._task_pool
                     if task.get('rating') in post_rating.split()
             ]
 
         if post_min_score != r'' and post_min_score is not None:
             self._task_pool = [
-                task
-                for task in self._task_pool
+                task for task in self._task_pool
                     if int(task.get('score') or
                         task.get('total_score') or 0) >= post_min_score
             ]
@@ -274,15 +272,13 @@ class Knget(object):
             if 'sankaku' in self._custom.get('base_url'):
                 # XXX: Handle sankaku site's tags
                 self._task_pool = [
-                    task
-                    for task in self._task_pool
+                    task for task in self._task_pool
                         if all( tag['name'] not in post_tags_blacklist.split()
                                 for tag in task['tags'])
                 ]
             else:
                 self._task_pool = [
-                    task
-                    for task in self._task_pool
+                    task for task in self._task_pool
                         if all( tag not in post_tags_blacklist.split()
                                 for tag in task['tags'].split())
                 ]
