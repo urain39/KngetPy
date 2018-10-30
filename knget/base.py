@@ -477,6 +477,46 @@ class KngetShell(Knget):
             _, help_msg = cmd_itself
             print(' ' * 4 + '{0:10s}{1}'.format(cmd_name, help_msg))
 
+    @command.register(argtypes=r'MSSS', help_msg="<propkey> <propvalue>")
+    def setprop(self, propkey, propvalue, valuetype):
+        try:
+            valuetype = valuetype[0]
+            section, key = propkey.split('.')
+            _section = getattr(self, '_' + section)
+
+            if valuetype not in ('i', 's', 'I', 'S'):
+                raise KngetError('Not support valuetype!',
+                                 reason='valuetype is {0}'.format(valuetype))
+
+            if key not in _section.keys():
+                raise KngetError('Not found the key!',
+                                 reason='key is {0}'.format(key))
+
+            if valuetype in ('i', 'I'):
+                _section[key] = int(propvalue)
+            elif valuetype in ('s', 'S'):
+                _section[key] = str(propvalue)
+        except (ValueError, AttributeError) as e:
+            self._msg2('Error: {0}'.format(e))
+
+    @command.register(argtypes=r'MS', help_msg="print the property value.")
+    def getprop(self, propkey):
+        try:
+            section, key = propkey.split('.')
+            propvalue = getattr(self, '_' + section).get(key)
+            self._msg2('PropValue: {0}'.format(propvalue))
+        except (ValueError, AttributeError) as e:
+            self._msg2('Error: {0}'.format(e))
+
+    @command.register(argtypes=r'MS', help_msg="based on exec(), unsafe.")
+    def dbgrun(self, source):
+        """Debug run. based on exec(), unsafe.
+        """
+        try:
+            exec(source)
+        except Exception as e:
+            self._msg2('Error: {0}'.format(e))
+
     def execute(self, lineno, cmd_name, args):
         if cmd_name not in self.command._commands.keys():
             self._msg2('#%d: Not found command %s\n' % (lineno, cmd_name))
