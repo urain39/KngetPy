@@ -254,8 +254,10 @@ class Knget(object):
             })
 
         if not (response.ok and response.json().get('success')):
-            raise KngetError('Cannot login!',
-                             reason=response.json().get('reason'))
+            self._msg2('Cannot login!')
+            # raise KngetError('Cannot login!',
+                             # reason=response.json().get('reason'))
+            return
 
         self._logined = True
 
