@@ -269,7 +269,7 @@ class Knget(object):
 
     def _chdir(self, tags, prefix=None):
         if not prefix:
-            prefix = 'kn-'
+            prefix = 'kg-'
 
         assert isinstance(prefix, str)
         save_dir = prefix + '-'.join(tags.split())
