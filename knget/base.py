@@ -698,7 +698,7 @@ class KngetShell(Knget):
 
             try:
                 # NOTE: callback is a unbound method, So we call
-                #       the callback  should add the `self` at first.
+                #       the callback should add the `self` at first.
                 callback(self, *args)
             except (ValueError, OSError) as e:
                 self._msg2('Error: {0}'.format(e))
