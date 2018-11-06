@@ -255,8 +255,8 @@ class Knget(object):
 
         if not (response.ok and response.json().get('success')):
             self._msg2('Cannot login!')
-            # raise KngetError('Cannot login!',
-                             # reason=response.json().get('reason'))
+            raise KngetError('Cannot login!',
+                             reason=response.json().get('reason'))
             return
 
         self._logined = True
@@ -267,21 +267,25 @@ class Knget(object):
     def _msg2(self, msg):
         sys.stderr.write('    => {0}\n'.format(msg))
 
-    def _chdir(self, tags):
-            save_dir = 'kn-' + '-'.join(tags.split())
+    def _chdir(self, tags, prefix=None):
+        if not prefix:
+            prefix = 'kn-'
 
-            # FIXME: Windows filename cannot with '< > / \ | : " * ?'
+        assert isinstance(prefix, str)
+        save_dir = prefix + '-'.join(tags.split())
 
-            # XXX: As far as i know
-            save_dir = save_dir.replace(':', '.')
-            save_dir = save_dir.replace('*', '+')
-            save_dir = save_dir.replace('?', '!')
-            save_dir = save_dir.replace('<', '(')
-            save_dir = save_dir.replace('>', ')')
+        # FIXME: Windows filename cannot with '< > / \ | : " * ?'
 
-            if not os.path.exists(save_dir):
-                os.mkdir(save_dir)
-            os.chdir(save_dir)
+        # XXX: As far as i know
+        save_dir = save_dir.replace(':', '.')\
+                           .replace('*', '+')\
+                           .replace('?', '!')\
+                           .replace('<', '(')\
+                           .replace('>', ')')
+
+        if not os.path.exists(save_dir):
+            os.mkdir(save_dir)
+        os.chdir(save_dir)
 
     def _check_url(self, url):
         protocol = re.match(r'((?:ht|f)tps?:).*', url)
@@ -294,19 +298,24 @@ class Knget(object):
         return url
 
     def _download(self, job):
-        url = job['file_url']
-        file_size = job['file_size']
-        file_name = '{post_id}.{file_ext}'.format(
-            post_id=job['id'],
+        file_id = job.get('id')
+        file_url = job.get('file_url')
+        file_size = job.get('file_size')
+
+        if not all([file_id, file_url, file_size]):
+            return
+
+        file_name = '{file_id}.{file_ext}'.format(
+            file_id=file_id,
             # XXX: Some sites not have file_ext attribute!
-            file_ext=job['file_url'].split('.')[-1]
+            file_ext=file_url.split('.')[-1]
         )
 
         file_name = file_name.split('?')[0]
         file_name = '{0:06d}_{1:6s}'.format(self._ordered_id, file_name)
 
         response = self._session.get(
-            url=self._check_url(url),
+            url=self._check_url(file_url),
             stream=True,
             timeout=self._config.get('timeout') or 10,
             params=self._login_data
@@ -481,7 +490,7 @@ class KngetCommand(object):
             M: Myself -> self
             S: String -> str
             I: Integer -> int
-            H: placeHolder  -> pass or anything
+            H: placeHolder -> pass or anything
         :param help_msg: a short help string of commands.
         :return: a callable function or method.
         """
