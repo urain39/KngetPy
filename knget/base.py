@@ -254,10 +254,8 @@ class Knget(object):
             })
 
         if not (response.ok and response.json().get('success')):
-            self._msg2('Cannot login!')
             raise KngetError('Cannot login!',
                              reason=response.json().get('reason'))
-            return
 
         self._logined = True
 
@@ -531,7 +529,7 @@ class KngetCommand(object):
                     elif argtypes[i] in ('h', 'H'):
                         argv.append(args[i])
                     else:
-                        raise KngetError('argtype {0} is invalid!'.format(argtype[i]))
+                        raise KngetError('argtype {0} is invalid!'.format(argtypes[i]))
 
                 return method(*argv, **kwargs)
 
