@@ -564,7 +564,7 @@ class KngetShell(Knget):
         #       If not, that `disable_dbgrun` may have some problems.
         self._completer = WordCompleter(self.command.commands.keys())
 
-    @command.register(argtypes=r'MSIH', help_msg="<tags> <begin> <end>")
+    @command.register(argtypes=r'MSIH', help_msg="<tags> <begin> [end]")
     def run(self, tags, begin, end=False):
         """Override method of class Knget
         """
@@ -638,8 +638,8 @@ class KngetShell(Knget):
             _, help_msg = cmd_itself
             print(' ' * 4 + '{0:10s}{1}'.format(cmd_name, help_msg))
 
-    @command.register(argtypes=r'MSSS', help_msg="<propkey> <propvalue>")
-    def setprop(self, propkey, propvalue, valuetype):
+    @command.register(argtypes=r'MSSH', help_msg="<propkey> <propvalue> [valuetype]")
+    def setprop(self, propkey, propvalue, valuetype='S'):
         try:
             valuetype = valuetype[0]
             section, key = propkey.split('.')
