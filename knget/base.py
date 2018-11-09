@@ -28,6 +28,37 @@ from requests import Session
 from requests.cookies import cookielib
 from requests.exceptions import RequestException
 
+# https://github.com/benjaminp/six/issues/142
+try:
+    ''.format_map({})
+except AttributeError: # Python < 3.2
+    import string
+    def format_map(format_string, mapping, _format=string.Formatter().vformat):
+        return _format(format_string, None, mapping)
+    del string
+
+    #XXX works on CPython 2.6
+    # http://stackoverflow.com/questions/2444680/how-do-i-add-my-own-custom-attributes-to-existing-built-in-python-types-like-a/2450942#2450942
+    import ctypes as c
+
+    class PyObject_HEAD(c.Structure):
+        _fields_ = [
+            ('HEAD', c.c_ubyte * (object.__basicsize__ -  c.sizeof(c.c_void_p))),
+            ('ob_type', c.c_void_p)
+        ]
+
+    _get_dict = c.pythonapi._PyObject_GetDictPtr
+    _get_dict.restype = c.POINTER(c.py_object)
+    _get_dict.argtypes = [c.py_object]
+
+    def get_dict(object):
+        return _get_dict(object).contents.value
+
+    get_dict(str)['format_map'] = format_map
+else: # Python 3.2+
+    def format_map(format_string, mapping):
+        return format_string.format_map(mapping)
+
 
 __all__ = [
     'main',
@@ -62,7 +93,9 @@ _DEFAULT_CONFIG = {
         'history_path': 'history.txt',
         'save_cookies': False,
         'cookies_path': 'cookies.txt',
-        'disable_dbgrun': True  # It's not safety!
+        'disable_dbgrun': True,  # It's not safety!
+        # NO DOCS HERE, SO RTFS PLEASE! NOTE: `Knget._download`
+        'filename_format': '{ordered_id:06d}_{file_id}.{file_ext}',
     },
     'download': {
         'timeout': 30,
@@ -193,7 +226,7 @@ class Knget(object):
             'User-Agent': self._custom.get('user_agent'),
         }
 
-        cookies_path = expanduser(self._custom.get('cookies_path', '/dev/null'))
+        cookies_path = expanduser(self._custom.get('cookies_path', '.'))
         self._session.cookies = cookielib.LWPCookieJar(cookies_path)
 
         if os.path.exists(cookies_path):
@@ -269,7 +302,8 @@ class Knget(object):
         if not prefix:
             prefix = 'kg-'
 
-        assert isinstance(prefix, str)
+        # NOTE: Python2.x type(u'') is not str
+        # assert isinstance(prefix, str)
         save_dir = prefix + '-'.join(tags.split())
 
         # FIXME: Windows filename cannot with '< > / \ | : " * ?'
@@ -291,7 +325,7 @@ class Knget(object):
         if protocol is None:
             # Get protocol from base_url
             base_url = self._custom.get('base_url')
-            return re.match(r'((?:ht|f)tps?:).*', base_url).group(1) + url
+            return re.match(r'(https?:).*', base_url).group(1) + url
 
         return url
 
@@ -299,18 +333,19 @@ class Knget(object):
         file_id = job.get('id')
         file_url = job.get('file_url')
         file_size = job.get('file_size')
+        # FIXME: Some sites not have file_ext attribute!
+        file_ext = file_url.split('?')[0].split('.')[-1]
 
-        if not all([file_id, file_url, file_size]):
-            return
+        if not all([file_id, file_url, file_size, file_ext]):
+            raise KngetError('job\'s information is too less!')
 
-        file_name = '{file_id}.{file_ext}'.format(
-            file_id=file_id,
-            # XXX: Some sites not have file_ext attribute!
-            file_ext=file_url.split('.')[-1]
-        )
+        filename_format = self._custom.get('filename_format', '{file_id}.{file_ext}')
 
-        file_name = file_name.split('?')[0]
-        file_name = '{0:06d}_{1:6s}'.format(self._ordered_id, file_name)
+        file_name = format_map(filename_format, {
+                'file_id': file_id, 'file_url': file_url,
+                'file_size': file_size, 'file_ext': file_ext,
+                'ordered_id': self._ordered_id,
+            })
 
         response = self._session.get(
             url=self._check_url(file_url),
@@ -335,8 +370,8 @@ class Knget(object):
 
         os.chdir(self._curdir)
         for _dir in os.listdir(self._curdir):
-            if os.path.isfile(_dir):
-                continue  # Skip file.
+            if not os.path.isdir(_dir):
+                continue  # Skip file, nanmed pipe etc.
 
             if len(os.listdir(_dir)) < 1:
                 os.rmdir(_dir)
@@ -577,7 +612,7 @@ class KngetShell(Knget):
     def exit(self):
         confirm = yes_no_dialog(
             title=u"Confirm Exit",
-            text=u"Ary you sure you want to exit?"
+            text=u"Are you sure you want to exit?"
         )
 
         if confirm:
@@ -630,11 +665,11 @@ class KngetShell(Knget):
     @command.register(argtypes=r'M', help_msg="show this help again.")
     def help(self):
         print('Copyright (c) 2017-2018 urain39@cyfan.cf\n')
-        print('Registered commands:')
 
+        print('Registered commands:')
         for cmd_name, cmd_itself in self.command.commands.items():
             _, help_msg = cmd_itself
-            print(' ' * 4 + '{0:10s}{1}'.format(cmd_name, help_msg))
+            print('    {0:10s}{1}'.format(cmd_name, help_msg))
 
     @command.register(argtypes=r'MSSH', help_msg="<propkey> <propvalue> [valuetype]")
     def setprop(self, propkey, propvalue, valuetype='S'):
@@ -720,7 +755,7 @@ class KngetShell(Knget):
                 self.execute(lineno, cmd_name=line[0], args=line[1:])
         else:
             save_history = self._custom.get('save_history')
-            history_path = expanduser(self._custom.get('history_path', '/dev/null'))
+            history_path = expanduser(self._custom.get('history_path', '.'))
 
             with LazyHistory(history_path) as history:
                 _session = PromptSession(completer=self._completer, message=message,
