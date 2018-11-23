@@ -56,8 +56,8 @@ _DEFAULT_CONFIG = {
         'base_url': 'https://konachan.net',
         'page_limit': 10,
         'user_agent': 'Mozilla/5.0 (Linux; LittleKaiju)',
-        'load_time_fake': '1, 2',
-        'post_rating': 's',  # At least one of 'e q s', split by ','.
+        'load_time_fake': '1, 2',  # <min, max>
+        'post_rating': 's',  # At least one of 'e q s', split by space or tab.
         'post_min_score': 0,
         'post_tags_blacklist': 'video mp4 webm',
         'save_history': False,
@@ -460,12 +460,12 @@ class Knget(object):
 
             # Do the job from index data.
             if len(self._task_pool) < 1:
-                break
+                break  # Nothing
             elif len(self._task_pool) < self._custom.get('page_limit'):
                 self.work()
-                break
+                break  # Only one page
             else:
-                self.work()
+                self.work()  # Endless
         # Only from the work can save the metadata
         self._cleanup(from_work=True)
 
