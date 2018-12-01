@@ -761,9 +761,9 @@ def usage(status=None):
 
 def main(argv):
     with KngetShell() as kgsh:
-        if len(argv) < 3:
+        if len(argv[1:]) < 3:
             kgsh.session()
-        elif len(argv) < 4:
+        elif len(argv[1:]) < 4:
             kgsh.run(*argv[1:])
         else:
             return usage(_USAGE_ERROR)
