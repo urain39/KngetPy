@@ -47,7 +47,7 @@ _DOWNLOAD_ERROR = 4
 
 _CMD = 'python -m knget'
 _USAGE = '\
-Usage: {0} <tags> <<begin>[end]>'.format(_CMD)
+Usage: {0} <tags> <<begin>[end]>\n'.format(_CMD)
 
 # Ensure _PROMPT_STR is unicode
 _PROMPT_STR = u'KGSH> '
