@@ -107,6 +107,7 @@ venv.bak/
 *.jpg
 *.png
 kn-*/
+kg-*/
 cookies.json
 
 # KngetPy Screenshots
@@ -116,3 +117,13 @@ cookies.json
 
 # KngetPy History
 history.txt
+
+# KngetPy Cookies
+cookies.txt
+
+# IDE Settings's directory
+.idea/
+.vscode/
+
+# KngetPy medadata
+meta_data.json

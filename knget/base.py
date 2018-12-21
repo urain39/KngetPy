@@ -94,8 +94,9 @@ class LazyHistory(FileHistory):
             result  = session.prompt()
             ...
     """
-    def __init__(self, filename):
+    def __init__(self, filename, save_history=False):
         self._history_next_index = 0
+        self._save_history = save_history
         super(LazyHistory, self).__init__(filename=filename)
 
     def __enter__(self):
@@ -104,7 +105,7 @@ class LazyHistory(FileHistory):
         return self
 
     def __exit__(self, exc_type, exc_val, exc_tb):
-        if len(self.history_strings) < 1:
+        if len(self.history_strings) < 1 or not self.save_history:
             return  # Skip empty
 
         with open(self.filename, 'ab') as f:
@@ -131,6 +132,10 @@ class LazyHistory(FileHistory):
 
     def store_string(self, string):
         pass  # Ignored
+
+    @property
+    def save_history(self):
+        return self._save_history
 
     @property
     def history_strings(self):
@@ -228,9 +233,9 @@ class Knget(object):
 
     def _loader_fake(self):
         load_time_fake = self._custom.get('load_time_fake')
-        load_time_fake = [int(t) for t in load_time_fake.split(',')[:2]]
+        load_time_fake = [int(t) for t in load_time_fake.split(',')]
 
-        load_time = random.randint(*load_time_fake) + random.random()
+        load_time = random.randint(*load_time_fake[:2]) + random.random()
 
         self._msg2("Load time: %0.2f" % load_time)
         time.sleep(load_time)
@@ -301,9 +306,9 @@ class Knget(object):
         return url
 
     def _download(self, job):
-        file_id = job.get('id')
-        file_url = job.get('file_url')
-        file_size = job.get('file_size')
+        file_id = job.get('id', 0)
+        file_url = job.get('file_url', '')
+        file_size = job.get('file_size', 0)
         # FIXME: Some sites not have file_ext attribute!
         file_ext = file_url.split('?')[0].split('.')[-1]
 
@@ -321,7 +326,7 @@ class Knget(object):
         response = self._session.get(
             url=self._check_url(file_url),
             stream=True,
-            timeout=self._config.get('timeout') or 10,
+            timeout=self._config.get('timeout', 10),
             params=self._login_data
         )
 
@@ -391,8 +396,8 @@ class Knget(object):
         self._filter()
 
         jobs_count = len(self._task_pool)
-        retry_count = self._config.get('retry_count')
-        retry_wait = self._config.get('retry_wait')
+        retry_count = self._config.get('retry_count', 3)
+        retry_wait = self._config.get('retry_wait', 10)
 
         cur_jobs_count = 0
         # cur_retry_count = 0
@@ -400,11 +405,19 @@ class Knget(object):
         self._meta_infos.extend(self._task_pool)
 
         for job in self._task_pool:
-            file_size = job.get('file_size')
+            file_size = job.get('file_size', 0)
 
-            if (file_size or 0) < self._config.get('maxsize') * (1 << 20):
+            if file_size < self._config.get('maxsize') * (1 << 20):
                 cur_jobs_count += 1
                 cur_retry_count = 0
+                # XXX: Overwrite this while-loop
+                # Let it like following style:
+                #
+                # while True:
+                #     try:
+                #         do_something()
+                #     except XXXError:
+                #         handle_error()
 
                 while True:
                     try:
@@ -518,13 +531,12 @@ class KngetCommand(object):
                         raise KngetError("args count is invalid.",
                                          reason='args count is {0}'.format(args_count))
 
-                # Another way, we just check if args count equals argtypes count
+                # Otherwise, we just check if args count equals argtypes count
                 elif args_count != argtypes_count:
                     raise KngetError("args count is invalid",
                                      reason='args count is {0}'.format(args_count))
 
                 argv = []  # NOTE: We cannot modify the args.
-                # args_count is safer than argtypes count
                 for i in range(args_count):
                     if argtypes[i] in ('m', 'M'):
                         argv.append(args[i])
@@ -547,7 +559,7 @@ class KngetCommand(object):
             )
             return wrapped_method
 
-        # format_args first touch the method
+        # only format_args touched the method
         return format_args
 
 
@@ -725,12 +737,12 @@ class KngetShell(Knget):
                     continue  # Blank
                 self.execute(lineno, cmd_name=line[0], args=line[1:])
         else:
-            save_history = self._custom.get('save_history')
+            save_history = self._custom.get('save_history', False)
             history_path = expanduser(self._custom.get('history_path', '.'))
 
-            with LazyHistory(history_path) as history:
-                _session = PromptSession(completer=self._completer, message=message,
-                                         history=history if save_history else None,
+            with LazyHistory(history_path, save_history) as history:
+                _session = PromptSession(completer=self._completer,
+                                         message=message, history=history,
                                          auto_suggest=AutoSuggestFromHistory(),
                                          complete_while_typing=False, enable_history_search=False)
                 while True:
