@@ -190,7 +190,7 @@ class Knget(object):
         self._config = {}
         self._account = {}
         self._session = Session()
-        self._logined = False
+        self._logged = False
         self._login_data = {}
         self._task_pool = {}
         self._meta_infos = []
@@ -241,7 +241,7 @@ class Knget(object):
         time.sleep(load_time)
 
     def _login(self, username, password):
-        if self._logined:
+        if self._logged:
             return self._msg2("Logined, skip login.")
 
         password_hash = sha1(
@@ -266,7 +266,7 @@ class Knget(object):
             raise KngetError('Cannot login!',
                              reason=response.json().get('reason'))
 
-        self._logined = True
+        self._logged = True
 
     def _msg(self, msg):
         sys.stderr.write('=> {0}\n'.format(msg))
